@@ -45,7 +45,14 @@ function love.load(arg)
 	love.graphics.setCanvas(render)
 		gen()
 	love.graphics.setCanvas()
-	render:newImageData():encode("png", "photo_".."0"..".png")
+	love.filesystem.createDirectory("save")
+
+	local list = love.filesystem.getDirectoryItems("save")
+	for k,v in ipairs(list) do
+		print(k, v)
+	end
+	render:newImageData():encode("png", "save/photo_"..#list..".png")
+
 end
 
 function love.draw()
