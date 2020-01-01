@@ -1,8 +1,5 @@
-
-local socket = require("socket")
-
+-- local socket = require("socket")
 local qrencode = dofile("lib/qrcode/qrencode.lua")
-
 -- local GPIO = require('periphery').GPIO
 
 -- local gpio_echo = GPIO(27, "in")
@@ -29,12 +26,28 @@ function qr_code(x,y,lx,txt)
 	end
 end
 
-function gen()
-	love.graphics.rectangle("fill", 0, 0, 512, 384*1.5)
-	print(photo:getDimensions())
-	love.graphics.draw(photo, 0, 0)
-	love.graphics.draw(dusty, 0, 384)
-	qr_code(512/2+60, 390, 340/2, "dustyfrogz.fr/photo_2019/1234.jpeg")
+function takephoto(nb)
+	print("take photo", nb)
+	os.execute("raspistill -vf -hf -n -t 1 -o "..love.filesystem.getSaveDirectory().."/photo/"..nb..".jpeg")
+	os.execute("raspistill -vf -hf -n -t 1 -w 512 -h 384 -o "..love.filesystem.getSaveDirectory().."/low/"..nb..".jpeg")
+	print("end")
+end
+
+function printphoto(nb)
+	print("render")
+	local photo = love.graphics.newImage("low/"..nb..".jpeg")
+	love.graphics.setCanvas(render)
+		love.graphics.rectangle("fill", 0, 0, 512, 384*1.5)
+		print(photo:getDimensions())
+		love.graphics.draw(photo, 0, 0)
+		love.graphics.draw(dusty, 0, 384)
+		qr_code(512/2+60, 390, 340/2, "dustyfrogz.fr/photo_2020/"..nb..".jpeg")
+	love.graphics.setCanvas()
+	print("save")
+	render:newImageData():encode("png", "pola/"..nb..".png")
+	print("print")
+	os.execute("cat "..love.filesystem.getSaveDirectory().."/pola/"..nb..".png | lp")
+	print("end")
 end
 
 function love.load(arg)
@@ -45,38 +58,35 @@ function love.load(arg)
 	love.filesystem.createDirectory("low")
 
 
-	local list = love.filesystem.getDirectoryItems("photo")
-	for k,v in ipairs(list) do
-		print(k, v)
-	end
-	print("photo")
-	os.execute("raspistill -n -t 1 -o "..love.filesystem.getSaveDirectory().."/photo/"..#list..".jpeg")
-	os.execute("raspistill -n -t 1 -w 512 -h 384 -o "..love.filesystem.getSaveDirectory().."/low/"..#list..".jpeg")
+	local nb = #love.filesystem.getDirectoryItems("photo")
+	print("photo", nb)
 
 	render = love.graphics.newCanvas(512, 384*1.5)
-
-	photo = love.graphics.newImage("low/"..#list..".jpeg")
 	dusty = love.graphics.newImage("dusty.png")
 
-	print("render")
-	love.graphics.setCanvas(render)
-		gen()
-	love.graphics.setCanvas()
-	print("save")
-	render:newImageData():encode("png", "pola/"..#list..".png")
-	print("end")
+
+	takephoto(nb)
+	-- printphoto(nb)
 
 end
 
 function love.draw()
-	love.graphics.draw(render,0,0)
+	-- love.graphics.draw(render,0,0)
 end
 
 function love.update(dt)
 
 end
 
-
 function love.keypressed( key, scancode, isrepeat )
-
+	print(key)
+	if key == "space" then
+		local nb = #love.filesystem.getDirectoryItems("photo")
+		takephoto(nb)
+	end
+	if key == "p" then
+		local nb = #love.filesystem.getDirectoryItems("photo")
+		takephoto(nb)
+		printphoto(nb)
+	end
 end
