@@ -1,10 +1,9 @@
 -- local socket = require("socket")
-local qrencode = dofile("lib/qrcode/qrencode.lua")
--- local GPIO = require('periphery').GPIO
+local qrencode = require("lib/qrcode/qrencode").qrcode
+local GPIO = require('periphery').GPIO
 
--- local gpio_echo = GPIO(27, "in")
--- local gpio_trig = GPIO(17, "out")
-
+local button = GPIO(24, "in")
+GPIO(24, "out"):write(true)
 
 function qr_code(x,y,lx,txt)
 	local ok, tab_or_message = qrencode.qrcode(txt)
@@ -75,7 +74,10 @@ function love.draw()
 end
 
 function love.update(dt)
-
+	if not button:read() then
+		local nb = #love.filesystem.getDirectoryItems("photo")
+		takephoto(nb)
+	end
 end
 
 function love.keypressed( key, scancode, isrepeat )
