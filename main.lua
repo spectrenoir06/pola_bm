@@ -63,6 +63,8 @@ function printphoto(nb)
 end
 
 function love.load(arg)
+	print("start")
+
 	love.filesystem.createDirectory("pola")
 	love.filesystem.createDirectory("photo")
 	love.filesystem.createDirectory("low")
@@ -74,10 +76,15 @@ function love.load(arg)
 	dusty = love.graphics.newImage("dusty.png")
 
 	setGpio()
+
+	--takephoto(nb)
+	-- printphoto(nb)
+
 end
 
 function love.draw()
-	-- love.graphics.draw(render,0,0)
+	love.graphics.setColor(1,1,1,1)
+	love.graphics.draw(render,0,0)
 end
 
 function love.update(dt)
