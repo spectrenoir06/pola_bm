@@ -1,4 +1,3 @@
--- local socket = require("socket")
 local qrencode = require("lib/qrcode/qrencode")
 local GPIO = require('periphery').GPIO
 
@@ -44,12 +43,13 @@ end
 function printphoto(nb)
 	print("render")
 	local photo = love.graphics.newImage("low/"..nb..".jpeg")
-	--render = love.graphics.newCanvas(512, 384*1.5)
 	love.graphics.setCanvas(render)
+		love.graphics.rotate(-math.pi)
+		love.graphics.translate(-512, -384*1.5)
 		love.graphics.clear(1,1,1,1)
 		love.graphics.setColor(1,1,1,1)
-		--love.graphics.rectangle("fill", 0, 0, 512, 384*1.5)
-		print(photo:getDimensions())
+		-- love.graphics.rectangle("fill", 0, 0, 512, 384*1.5)
+		-- print(photo:getDimensions())
 		love.graphics.draw(photo, 0, 0)
 		love.graphics.draw(dusty, 0, 384)
 		qr_code(512/2+60, 390, 340/2, "dustyfrogz.fr/photo_2020/"..nb..".jpeg")
